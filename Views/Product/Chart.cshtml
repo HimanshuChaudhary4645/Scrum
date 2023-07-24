@@ -1,0 +1,98 @@
+﻿
+@{
+    Layout = null;
+    ViewBag.Title = "Chart";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Price Range Chart</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  
+    <div id="chartContainer"></div>
+    <label for="priceFilter">Select Price Range:</label>
+    <select id="priceFilter">
+        <option value="0-1000">0 - 1000</option>
+        <option value="1001-2000">1001 - 2000</option>
+        <option value="2001-3000">2001 - 3000</option>
+        <option value="3001-5000">3001 - 5000</option>
+    </select>
+    <button class="btn btn-primary" onclick="BacktoList()">Back to List</button>
+    <script>
+        function BacktoList() {
+            window.location.href = "/Product/ViewPrdoct";
+        }
+
+       
+        function generateChart(chartData) {
+            debugger;
+            Highcharts.chart("chartContainer", {
+                chart: {
+                    type: "column",
+                },
+                title: {
+                    text: "Product Price Range Chart",
+                },
+                xAxis: {
+                    type: "category",
+                },
+                yAxis: {
+                    title: {
+                        text: "Price",
+                    },
+                },
+                series: [{
+                    name: "Price",
+                    data: chartData.map((product) => ({
+                        name: product.Product_title,
+                        y: parseFloat(product.Price), 
+                    })),
+                }],
+            });
+        }
+
+       
+        function filterProductsByPriceRange(products, minPrice, maxPrice) {
+            return products.filter(product => product.Price >= minPrice && product.Price <= maxPrice);
+        }
+
+        
+        function fetchDataAndGenerateChart() {
+
+            $.ajax({
+                url: "@Url.Action("GetChartData", "Product")",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    debugger;
+                    
+                    generateChart(data);
+
+                   
+                    $("#priceFilter").on("change", function () {
+                        const selectedValue = $(this).val();
+                        const [minPrice, maxPrice] = selectedValue.split("-").map(Number);
+
+                        
+                        const filteredProducts = filterProductsByPriceRange(data, minPrice, maxPrice);
+
+                        
+                        generateChart(filteredProducts);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching data: " + error);
+                }
+            });
+        }
+
+        
+        $(document).ready(function () {    /*function call on load*/
+            fetchDataAndGenerateChart();
+        });
+    </script>
+</body>
+</html>

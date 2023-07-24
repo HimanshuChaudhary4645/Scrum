@@ -1,0 +1,93 @@
+﻿@model  ProjectScrum.Context.ProductDetail
+
+@{
+    Layout = null;
+    ViewBag.Title = "UpdateView";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Updated Details</title>
+   
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Add Product Details</h2>
+        <form id="productForm">
+            
+                <div class="form-group">
+                    <label for="product_title">Product Title:</label>
+                    <input type="text" class="form-control" id="product_title" name="product_title" value="@ViewBag.Product_title" >
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Image:</label>
+                    <input type="file"  class="form-control-file" id="image" name="image" accept="image/*" >
+                    @if (!string.IsNullOrEmpty(@ViewBag.ImageURL))
+                    {
+                        <img src="@ViewBag.ImageURL" alt="Product Image" style="max-width: 100px; max-height: 100px;" />
+                    }
+                    else
+                    {
+                        <span>No Image Available</span>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price:</label>
+                    <input type="text" value="@ViewBag.Price" class="form-control" id="price" name="price" >
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock:</label>
+                    <input type="text" value="@ViewBag.Stock" class="form-control" id="stock" name="stock" >
+                </div>
+            <button type="submit" class="btn btn-primary" onclick="UpdateProduct()">Update Product</button>
+            <br/><br/><button class="btn btn-primary" onclick="BacktoList()">Back to List</button>              
+            
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function UpdateProduct() {
+            event.preventDefault(); 
+            debugger;
+            var formData = new FormData();
+
+            formData.append("Id",@ViewBag.id)
+            formData.append("product_title", $("#product_title").val());
+            formData.append("image", $("#image")[0].files[0]);
+            formData.append("price", $("#price").val());
+            formData.append("stock", $("#stock").val());
+
+
+            $.ajax({
+                url: "/Product/UpdatePrdoct", 
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    debugger;
+                    alert(response.message);
+                    window.location.href = "/Product/ViewPrdoct";
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error adding product: " + error);
+                }
+            });
+        }
+
+        function BacktoList() {
+            window.location.href = "/Product/ViewPrdoct";
+        }
+    </script>
+
+</body>
+</html>
+
+
